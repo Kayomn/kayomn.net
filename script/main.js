@@ -190,8 +190,7 @@ window.onload = () => {
 		logo.onclick = () => updateBlogFeed(0, 5);
 	}
 
-	updateGitHubFeed("Kayomn", document.getElementById("github-feed"));
-	checkHash("", window.location.hash);
+	checkHash(window.location.hash.substr(1));
 
 	window.addEventListener("hashchange", (event) => {
 		let newUrl = event.newURL;
