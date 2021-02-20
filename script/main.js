@@ -1,6 +1,7 @@
 "use strict";
 
 const gitHubApiUrl = "https://api.github.com";
+const blogFeed = document.getElementById("blog-feed");
 
 document.instantiateElement = (tagName, properties) => {
 	return Object.assign(document.createElement(tagName), properties);
@@ -54,80 +55,116 @@ function updateGitHubFeed(username, htmlElement) {
 	}
 }
 
-function openBlogItem(name, htmlElement) {
-	if (htmlElement) {
-		let responsePromise = fetch(`backend/ch/content.php?stream=blog&name=${name}`);
-		htmlElement.innerHTML = "";
+function updateBlogFeed(offset, limit) {
+	if (blogFeed) {
+		let responsePromise =
+				fetch(`backend/ch/stream.php?name=blog&offset=${offset}&limit=${limit}`);
+
+		blogFeed.innerHTML = "";
 
 		responsePromise.then((response) => {
-			if (response.ok) {
-				response.json().then((post) => {
-					htmlElement.appendChild(document.instantiateTemplate("blog-feed-item", {
-						title: document.instantiateElement("span", {
-							innerText: post.title,
-							className: "text subheading"
-						}),
+			if (response.ok) response.json().then((posts) => {
+				if (Array.isArray(posts)) {
+					let postCount = Math.min(posts.length, limit);
 
-						brief: document.instantiateElement("div", {
-							innerHTML: marked(post.body),
-							className: "text body"
-						}),
-					}));
-				});
-			}
+					for (let i = 0; i < postCount; i += 1) {
+						let post = posts[i];
+						let postLink = `#blog-${post.name}`;
+
+						blogFeed.appendChild(document.instantiateTemplate("blog-feed-item", {
+							title: document.instantiateElement("a", {
+								innerText: post.title,
+								className: "text subheading",
+								href: postLink
+							}),
+
+							brief: document.instantiateElement("div", {
+								innerText: post.brief,
+								className: "text body"
+							}),
+
+							link: document.instantiateElement("a", {
+								innerText: "[ Read More ]",
+								className: "text",
+								href: postLink
+							})
+						}));
+					}
+				}
+			});
 		});
 	}
 }
 
-function updateBlogFeed(offset, limit, htmlElement) {
-	if (htmlElement) {
-		let responsePromise =
-				fetch(`backend/ch/stream.php?name=blog&offset=${offset}&limit=${limit}`);
+function isNumeric(str) {
+	if (typeof str != "string") {
+		return false;
+	}
 
-		htmlElement.innerHTML = "";
+	return ((!isNaN(str)) && (!isNaN(parseFloat(str))));
+  }
 
-		responsePromise.then((response) => {
-			if (response.ok) {
-				response.json().then((posts) => {
-					if (Array.isArray(posts)) {
-						let postCount = Math.min(posts.length, limit);
+function checkHash(hash) {
+	let componentSplitIndex = hash.indexOf("-");
+	let hashComponent = "";
 
-						for (let i = 0; i < postCount; i += 1) {
-							let post = posts[i];
-							let openPost = () => openBlogItem(post.name, htmlElement);
+	if (componentSplitIndex != -1) {
+		hashComponent = hash.substr(componentSplitIndex + 1)
+		hash = hash.substr(0, componentSplitIndex)
+	}
 
-							let titleElement = document.instantiateElement("a", {
-								innerText: post.title,
-								className: "text subheading",
-								href: "#post"
-							});
+	switch (hash) {
+		case "": {
+			// Homepage.
+			updateBlogFeed(0, 5);
 
-							titleElement.onclick = openPost;
+			return;
+		}
 
-							let textElement = document.instantiateElement("a", {
-								innerText: "[ Read More ]",
-								className: "text",
-								href: "#post"
-							});
+		case "blog": {
+			// Load blog page.
+			let itemsPerPage = 5;
 
-							textElement.onclick = openPost;
+			if (hashComponent) {
+				if (isNumeric(hashComponent)) {
+					console.log(hashComponent);
+					let page = Number(hashComponent);
+					let pageStep = (itemsPerPage * page);
 
-							htmlElement.appendChild(document.instantiateTemplate("blog-feed-item", {
-								title: titleElement,
+					updateBlogFeed(pageStep, (pageStep + 5));
+				} else {
+					let responsePromise =
+							fetch(`backend/ch/content.php?stream=blog&name=${hashComponent}`);
 
-								brief: document.instantiateElement("div", {
-									innerText: post.brief,
-									className: "text body"
+					blogFeed.innerHTML = "";
+
+					responsePromise.then((response) => {
+						if (response.ok) response.json().then((post) => {
+							blogFeed.appendChild(document.instantiateTemplate("blog-feed-item", {
+								title: document.instantiateElement("span", {
+									innerText: post.title,
+									className: "text subheading"
 								}),
 
-								link: textElement
+								brief: document.instantiateElement("div", {
+									innerHTML: marked(post.body),
+									className: "text body"
+								}),
 							}));
-						}
-					}
-				});
+						});
+					});
+				}
+			} else {
+				updateBlogFeed(0, itemsPerPage);
 			}
-		});
+
+			return;
+		}
+
+		default: break;
 	}
+
+	updateBlogFeed(0, 5, blogFeed);
 }
 
 window.onload = () => {
@@ -148,21 +185,19 @@ window.onload = () => {
 	}
 
 	let logo = document.getElementById("github-feed");
-	let blogFeed = document.getElementById("blog-feed");
 
 	if (logo) {
-		logo.onclick = () => updateBlogFeed(0, 5, blogFeed);
+		logo.onclick = () => updateBlogFeed(0, 5);
 	}
 
 	updateGitHubFeed("Kayomn", document.getElementById("github-feed"));
-	updateBlogFeed(0, 5, blogFeed);
+	checkHash("", window.location.hash);
 
 	window.addEventListener("hashchange", (event) => {
-		let postHash = "#post";
+		let newUrl = event.newURL;
+		let newHashIndex = newUrl.indexOf("#");
 
-		if (event.oldURL.endsWith(postHash) && (!event.newURL.endsWith(postHash))) {
-			updateBlogFeed(0, 5, blogFeed);
-		}
+		checkHash((newHashIndex == -1) ? "" : newUrl.substr(newHashIndex + 1));
 	});
 }
 
