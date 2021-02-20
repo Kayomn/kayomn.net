@@ -2,6 +2,7 @@
 
 const gitHubApiUrl = "https://api.github.com";
 const blogFeed = document.getElementById("blog-feed");
+const gitHubFeed = document.getElementById("github-feed");
 
 document.instantiateElement = (tagName, properties) => {
 	return Object.assign(document.createElement(tagName), properties);
@@ -20,8 +21,8 @@ document.instantiateTemplate = (tagName, slotElements) => {
 	return instanceNode;
 }
 
-function updateGitHubFeed(username, htmlElement) {
-	if (htmlElement) {
+function updateGitHubFeed(username) {
+	if (gitHubFeed) {
 		fetch(`${gitHubApiUrl}/users/${username}/repos`).then((response) => {
 			if (response.ok) {
 				response.json().then((projects) => {
@@ -34,7 +35,7 @@ function updateGitHubFeed(username, htmlElement) {
 							let project = projects[i];
 
 							if (!project.fork) {
-								htmlElement.appendChild(document.instantiateTemplate("git-feed-item", {
+								gitHubFeed.appendChild(document.instantiateTemplate("git-feed-item", {
 									title: document.instantiateElement("a", {
 										innerText: project.name,
 										className: "text subheading",
@@ -48,6 +49,8 @@ function updateGitHubFeed(username, htmlElement) {
 								}));
 							}
 						}
+					} else {
+						console.warn("Github feed is malformed");
 					}
 				});
 			} else {
@@ -186,12 +189,13 @@ window.onload = () => {
 		}
 	}
 
-	let logo = document.getElementById("github-feed");
+	let logo = document.getElementById("logo");
 
 	if (logo) {
 		logo.onclick = () => updateBlogFeed(0, 5);
 	}
 
+	updateGitHubFeed("Kayomn");
 	checkHash(window.location.hash.substr(1));
 
 	window.addEventListener("hashchange", (event) => {
