@@ -50,6 +50,8 @@ function updateGitHubFeed(username, htmlElement) {
 						}
 					}
 				});
+			} else {
+				console.warn("Github feed: ", response.status);
 			}
 		});
 	}
