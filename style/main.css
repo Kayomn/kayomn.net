@@ -1,0 +1,91 @@
+
+@font-face {
+	font-family: "Lato-Regular";
+	src: url("/font/Lato/Lato-Regular.ttf");
+}
+
+@font-face {
+	font-family: "Lato-Light";
+	src: url("/font/Lato/Lato-Light.ttf");
+}
+
+body {
+	background: white;
+	margin: 0;
+}
+
+body .text {
+	font-family: "Lato-Light", sans-serif;
+	color: #111;
+}
+
+body header {
+	background: #EEE;
+	padding: 5px 30px;
+}
+
+body main .text {
+	font-size: 16px;
+}
+
+body main {
+	margin: 15px auto;
+	max-width: 70%;
+}
+
+body main a.text, body main .text a {
+	font-family: "Lato-Regular";
+	color: #ac5d48;
+	text-decoration: none;
+}
+
+body main a:hover.text, body main .text a:hover {
+	color: #a5391c;
+}
+
+body footer {
+	margin: 10px 0;
+}
+
+body footer .text {
+	text-align: center;
+	font-size: 12px;
+}
+
+body main .columns {
+	display: flex;
+}
+
+body main .columns > *:nth-child(2) {
+	margin: 0 0 0 10px;
+}
+
+body main .text.heading {
+	font-family: "Lato-Regular";
+	font-size: 32px;
+	margin: 0 0 10px 0;
+}
+
+body main .text.subheading {
+	font-family: "Lato-Regular";
+	font-size: 24px;
+	margin: 0 0 10px 0;
+}
+
+body main .text.body {
+	margin: 5px 0 10px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	body .text {
+		color: white;
+	}
+
+	body {
+		background: #111;
+	}
+
+	body header {
+		background: #0C0C0C;
+	}
+}
