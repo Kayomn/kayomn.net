@@ -29,6 +29,19 @@
 		</div>
 	</template>
 
+	<template id="blog-post">
+		<link rel="stylesheet" type="text/css" href="/style/animations.css" />
+
+		<div style="animation: slide-right 0.4s ease; margin: 20px 0;">
+			<slot name="title"></slot>
+			<slot name="created"></slot>
+			<slot name="updated"></slot>
+			<slot name="readtime"></slot>
+			<slot name="body"></slot>
+			<slot name="link"></slot>
+		</div>
+	</template>
+
 	<body>
 		<header>
 			<a id="logo" href="/"><img src="/media/logo.png"></a>

@@ -107,7 +107,15 @@ function isNumeric(str) {
 	return ((!isNaN(str)) && (!isNaN(parseFloat(str))));
 }
 
+function calculateReadTime(text) {
+	const averageWordsPerMinute = 150;
+	const textWords = text.split(" ").length;
+
+	return Math.ceil(textWords / averageWordsPerMinute);
+}
+
 function checkHash(hash) {
+	const blogPostsPerPage = 5;
 	let componentSplitIndex = hash.indexOf("-");
 	let hashComponent = "";
 
@@ -119,22 +127,19 @@ function checkHash(hash) {
 	switch (hash) {
 		case "": {
 			// Homepage.
-			updateBlogFeed(0, 5);
+			updateBlogFeed(0, blogPostsPerPage);
 
 			return;
 		}
 
 		case "blog": {
 			// Load blog page.
-			let itemsPerPage = 5;
-
 			if (hashComponent) {
 				if (isNumeric(hashComponent)) {
-					console.log(hashComponent);
 					let page = Number(hashComponent);
-					let pageStep = (itemsPerPage * page);
+					let pageStep = (blogPostsPerPage * page);
 
-					updateBlogFeed(pageStep, (pageStep + 5));
+					updateBlogFeed(pageStep, (pageStep + blogPostsPerPage));
 				} else {
 					let responsePromise =
 							fetch(`backend/ch/content.php?stream=blog&name=${hashComponent}`);
@@ -143,14 +148,26 @@ function checkHash(hash) {
 
 					responsePromise.then((response) => {
 						if (response.ok) response.json().then((post) => {
-							blogFeed.appendChild(document.instantiateTemplate("blog-feed-item", {
+							const postBody = post.body;
+
+							blogFeed.appendChild(document.instantiateTemplate("blog-post", {
 								title: document.instantiateElement("span", {
 									innerText: post.title,
 									className: "text subheading"
 								}),
 
-								brief: document.instantiateElement("div", {
-									innerHTML: marked(post.body),
+								created: document.instantiateElement("div", {
+									innerText: "Posted " + new Date(post.created).toDateString(),
+									className: "text body"
+								}),
+
+								readtime: document.instantiateElement("div", {
+									innerText: `~${calculateReadTime(postBody)} minute read`,
+									className: "text body"
+								}),
+
+								body: document.instantiateElement("div", {
+									innerHTML: marked(postBody),
 									className: "text body"
 								}),
 							}));
@@ -158,7 +175,7 @@ function checkHash(hash) {
 					});
 				}
 			} else {
-				updateBlogFeed(0, itemsPerPage);
+				updateBlogFeed(0, blogPostsPerPage);
 			}
 
 			return;
