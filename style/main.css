@@ -12,6 +12,7 @@
 body {
 	background: white;
 	margin: 0;
+	overflow: scroll;
 }
 
 body .text {
