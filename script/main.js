@@ -70,7 +70,7 @@ function updateBlogFeed(offset, limit) {
 				if (Array.isArray(posts)) {
 					let postCount = Math.min(posts.length, limit);
 
-					for (let i = 0; i < postCount; i += 1) {
+					for (let i = (postCount - 1); i >= 0; i -= 1) {
 						let post = posts[i];
 						let postLink = `#blog-${post.name}`;
 
