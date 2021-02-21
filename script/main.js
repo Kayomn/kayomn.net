@@ -22,42 +22,40 @@ document.instantiateTemplate = (tagName, slotElements) => {
 }
 
 function updateGitHubFeed(username) {
-	if (gitHubFeed) {
-		fetch(`${gitHubApiUrl}/users/${username}/repos`).then((response) => {
-			if (response.ok) {
-				response.json().then((projects) => {
-					if (Array.isArray(projects)) {
-						let projectCount = projects.length;
+	if (gitHubFeed) fetch(`${gitHubApiUrl}/users/${username}/repos`).then((response) => {
+		if (response.ok) {
+			response.json().then((projects) => {
+				if (Array.isArray(projects)) {
+					let projectCount = projects.length;
 
-						projects.sort((a, b) => (a.stargazers_count < b.stargazers_count));
+					projects.sort((a, b) => (a.stargazers_count < b.stargazers_count));
 
-						for (let i = 0; i < projectCount; i += 1) {
-							let project = projects[i];
+					for (let i = 0; i < projectCount; i += 1) {
+						let project = projects[i];
 
-							if (!project.fork) {
-								gitHubFeed.appendChild(document.instantiateTemplate("git-feed-item", {
-									title: document.instantiateElement("a", {
-										innerText: project.name,
-										className: "text subheading",
-										href: project.html_url
-									}),
+						if (!project.fork) {
+							gitHubFeed.appendChild(document.instantiateTemplate("git-feed-item", {
+								title: document.instantiateElement("a", {
+									innerText: project.name,
+									className: "text subheading",
+									href: project.html_url
+								}),
 
-									description: document.instantiateElement("div", {
-										innerText: project.description,
-										className: "text body"
-									})
-								}));
-							}
+								description: document.instantiateElement("div", {
+									innerText: project.description,
+									className: "text body"
+								})
+							}));
 						}
-					} else {
-						console.warn("Github feed is malformed");
 					}
-				});
-			} else {
-				console.warn("Github feed: ", response.status);
-			}
-		});
-	}
+				} else {
+					console.warn("Github feed is malformed");
+				}
+			});
+		} else {
+			console.warn("Github feed: ", response.status);
+		}
+	});
 }
 
 function updateBlogFeed(offset, limit) {
@@ -107,7 +105,7 @@ function isNumeric(str) {
 	}
 
 	return ((!isNaN(str)) && (!isNaN(parseFloat(str))));
-  }
+}
 
 function checkHash(hash) {
 	let componentSplitIndex = hash.indexOf("-");
