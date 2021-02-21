@@ -157,7 +157,12 @@ function checkHash(hash) {
 								}),
 
 								created: document.instantiateElement("div", {
-									innerText: "Posted " + new Date(post.created).toDateString(),
+									innerText: ("Posted " + new Date(post.created).toDateString()),
+									className: "text body"
+								}),
+
+								author: document.instantiateElement("div", {
+									innerText: ("By " + post.author),
 									className: "text body"
 								}),
 
