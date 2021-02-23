@@ -25,6 +25,10 @@ body header {
 	padding: 5px 30px;
 }
 
+body pre {
+	overflow-x: scroll;
+}
+
 body main .text {
 	font-size: 100%;
 }
@@ -92,7 +96,7 @@ body main .text.body {
 	}
 }
 
-@media only screen and (max-width: 700px) {
+@media (orientation: portrait), (max-width: 900px) {
 	body main .columns {
 		display: block;
 	}
